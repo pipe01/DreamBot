@@ -35,22 +35,19 @@ namespace DreamBot.Modules
             await Context.Channel.SendMessageAsync($"{user.Mention}'s id is {user.Id}");
         }
 
-        // Info
-        [Command("info")]
-        [Summary("Returns info about the bot.")]
-        public async Task BotInfo()
+        // Stats
+        [Command("stats")]
+        [Summary("Returns stats of the bot.")]
+        public async Task Stats()
         {
+            var client = Context.Client as DiscordSocketClient;
+            var servers = client.Guilds;
             var app = await Context.Client.GetApplicationInfoAsync();
-            await Context.Channel.SendMessageAsync(
-                $"{Format.Bold("Info")}\n" +
-                $"- Author: {app.Owner.Username}\n" +
-                $"- Base: Discord.Net ({DiscordConfig.Version})\n" +
-                $"- Runtime: {RuntimeInformation.FrameworkDescription} {RuntimeInformation.OSArchitecture}\n" +
-                $"- Uptime: {(DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\.hh\:mm\:ss")}\n\n" +
-                $"{Format.Bold("Stats")}\n" +
-                $"- Servers: {(Context.Client as DiscordSocketClient).Guilds.Count}\n" +
-                $"- Channels: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count)}\n" +
-                $"- Users: {((Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Users.Count))}"
+            await Context.Channel.SendMessageAsync($"{Format.Bold("Stats:")}\n" + 
+                $"Servers: {servers.Count}\n" +
+                $"Channels: {servers.Sum(c => c.Channels.Count)}\n" +
+                $"Roles: {servers.Sum(r => r.Roles.Count)}\n" +
+                $"Users: {servers.Sum(u => u.Users.Count)}"
             );
         }
     }

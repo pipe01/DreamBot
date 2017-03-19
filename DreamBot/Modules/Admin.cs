@@ -19,7 +19,9 @@ namespace DreamBot.Modules
         MessageConfig msgConfig = new Functions().GetMessageConfig();
         // Kick
         [Command("kick")]
-        [Summary("Kicks the user from the server.")]
+        [Summary("Kicks the user.")]
+        [RequireUserPermission(GuildPermission.KickMembers)]
+        [RequireBotPermission(GuildPermission.KickMembers)]
         public async Task Kick([Remainder] SocketGuildUser user)
         {
             await user.KickAsync();
@@ -28,7 +30,9 @@ namespace DreamBot.Modules
 
         // Ban
         [Command("ban")]
-        [Summary("Ban the user from the server.")]
+        [Summary("Bans the user.")]
+        [RequireUserPermission(GuildPermission.BanMembers)]
+        [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task Ban([Remainder] SocketGuildUser user)
         {
             await Context.Guild.AddBanAsync(user, 0);
@@ -37,7 +41,9 @@ namespace DreamBot.Modules
 
         // Prune
         [Command("prune")]
-        [Summary("Removes x amount of messages.")]
+        [Summary("Removes messages.")]
+        [RequireUserPermission(GuildPermission.ManageMessages)]
+        [RequireBotPermission(GuildPermission.ManageMessages)]
         public async Task Prune([Remainder] int amount)
         {
             amount = amount + 1;
@@ -55,6 +61,8 @@ namespace DreamBot.Modules
         // Verify
         [Command("verify")]
         [Summary("Verifies the user on the server.")]
+        [RequireUserPermission(GuildPermission.BanMembers)]
+        [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task Verify([Remainder] SocketGuildUser user)
         {
             var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
@@ -83,6 +91,8 @@ namespace DreamBot.Modules
         // UnVerify
         [Command("unverify")]
         [Summary("Unverifies the user on the server.")]
+        [RequireUserPermission(GuildPermission.BanMembers)]
+        [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task UnVerify([Remainder] SocketGuildUser user)
         {
             var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
