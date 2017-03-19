@@ -17,13 +17,14 @@ namespace DreamBot.Modules
 {
     public class Info : ModuleBase
     {
+        MessageConfig msgConfig = new Functions().GetMessageConfig();
         // Invite
         [Command("invite")]
         [Summary("Invite the bot to your server.")]
         public async Task Invite()
         {
             var app = await Context.Client.GetApplicationInfoAsync();
-            await Context.Channel.SendMessageAsync($"You can invite me by clicking this link: https://discordapp.com/oauth2/authorize?permissions=2146958463&scope=bot&client_id=" + app.Id);
+            await Context.Channel.SendMessageAsync(msgConfig.InviteMsg.Replace("{0}", app.Id.ToString()));
         }
 
         // Id
@@ -47,7 +48,6 @@ namespace DreamBot.Modules
                 $"- Runtime: {RuntimeInformation.FrameworkDescription} {RuntimeInformation.OSArchitecture}\n" +
                 $"- Uptime: {(DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\.hh\:mm\:ss")}\n\n" +
                 $"{Format.Bold("Stats")}\n" +
-                $"- Heap Size: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString()}\n" +
                 $"- Servers: {(Context.Client as DiscordSocketClient).Guilds.Count}\n" +
                 $"- Channels: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count)}\n" +
                 $"- Users: {((Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Users.Count))}"

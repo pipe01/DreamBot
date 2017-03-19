@@ -16,6 +16,7 @@ namespace DreamBot.Modules
     // Admin
     public class Admin : ModuleBase
     {
+        MessageConfig msgConfig = new Functions().GetMessageConfig();
         // Kick
         [Command("kick")]
         [Summary("Kicks the user from the server.")]
@@ -25,81 +26,11 @@ namespace DreamBot.Modules
             if (config.Admins.ToList().Contains(Context.User.Id) || config.OwnerID == Context.User.Id)
             {
                 await user.KickAsync();
-                await Context.Channel.SendMessageAsync($"{user.Mention} has been kicked.");
+                await Context.Channel.SendMessageAsync(msgConfig.KickMsg.Replace("{0}", user.Mention));
             }
             else
             {
-                await Context.Channel.SendMessageAsync(msg.NoPermission.Replace("{0}", Context.User.Mention));
-            }
-        }
-
-        // Verify
-        [Command("verify")]
-        [Summary("Verifies the user on the server.")]
-        public async Task Verify([Remainder] SocketGuildUser user)
-        {
-            var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
-            if (config.Verifications == true)
-            {
-                if (config.Admins.Contains(Context.User.Id))
-                {
-                    var role1 = Context.Guild.Roles.First(f => f.Name == "unverified");
-                    var role2 = Context.Guild.Roles.First(f => f.Name == "verified");
-                    var roles = user.Roles;
-                    if (roles.Contains(role1))
-                    {
-                        await user.RemoveRolesAsync(role1);
-                        await user.AddRolesAsync(role2);
-                        await Context.Channel.SendMessageAsync($"{user.Mention} has been verified by {Context.User.Mention}");
-                    }
-                    else
-                    {
-                        await Context.Channel.SendMessageAsync($"{user.Mention} is already verified.");
-                    }
-                }
-                else
-                {
-                    await Context.Channel.SendMessageAsync($"{Context.User.Mention} you are not allowed to do that!");
-                }
-            }
-            else
-            {
-                await Context.Channel.SendMessageAsync("This server doesn't use verification service.");
-            }
-        }
-
-        // UnVerify
-        [Command("unverify")]
-        [Summary("Unverifies the user on the server.")]
-        public async Task UnVerify([Remainder] SocketGuildUser user)
-        {
-            var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
-            if (config.Verifications == true)
-            {
-                if (config.Admins.Contains(Context.User.Id))
-                {
-                    var role1 = Context.Guild.Roles.First(f => f.Name == "unverified");
-                    var role2 = Context.Guild.Roles.First(f => f.Name == "verified");
-                    var roles = user.Roles;
-                    if (roles.Contains(role2))
-                    {
-                        await user.RemoveRolesAsync(role2);
-                        await user.AddRolesAsync(role1);
-                        await Context.Channel.SendMessageAsync($"{user.Mention} has been unverified by {Context.User.Mention}");
-                    }
-                    else
-                    {
-                        await Context.Channel.SendMessageAsync($"{user.Mention} is already unverified member.");
-                    }
-                }
-                else
-                {
-                    await Context.Channel.SendMessageAsync($"{Context.User.Mention} you are not allowed to do that!");
-                }
-            }
-            else
-            {
-                await Context.Channel.SendMessageAsync("This server doesn't use verification service.");
+                await Context.Channel.SendMessageAsync(msgConfig.NoPermission.Replace("{0}", Context.User.Mention));
             }
         }
 
@@ -112,11 +43,11 @@ namespace DreamBot.Modules
             if (config.Admins.ToList().Contains(Context.User.Id) || config.OwnerID == Context.User.Id)
             {
                 await Context.Guild.AddBanAsync(user, 0);
-                await Context.Channel.SendMessageAsync($"{user.Mention} has been banned.");
+                await Context.Channel.SendMessageAsync(msgConfig.BanMsg.Replace("{0}", user.Mention));
             }
             else
             {
-                await Context.Channel.SendMessageAsync(msg.NoPermission.Replace("{0}", Context.User.Mention));
+                await Context.Channel.SendMessageAsync(msgConfig.NoPermission.Replace("{0}", Context.User.Mention));
             }
         }
 
@@ -136,12 +67,82 @@ namespace DreamBot.Modules
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync($"You can only prune maximum of 100 messages at the time.");
+                    await Context.Channel.SendMessageAsync(msgConfig.PruneErr);
                 }
             }
             else
             {
-                await Context.Channel.SendMessageAsync(msg.NoPermission.Replace("{0}", Context.User.Mention));
+                await Context.Channel.SendMessageAsync(msgConfig.NoPermission.Replace("{0}", Context.User.Mention));
+            }
+        }
+
+        // Verify
+        [Command("verify")]
+        [Summary("Verifies the user on the server.")]
+        public async Task Verify([Remainder] SocketGuildUser user)
+        {
+            var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
+            if (config.Admins.Contains(Context.User.Id) || config.OwnerID == Context.User.Id)
+            {
+                if (config.Verifications == true)
+                {
+                    var role1 = Context.Guild.Roles.First(f => f.Name == "unverified");
+                    var role2 = Context.Guild.Roles.First(f => f.Name == "verified");
+                    var roles = user.Roles;
+                    if (roles.Contains(role1))
+                    {
+                        await user.RemoveRolesAsync(role1);
+                        await user.AddRolesAsync(role2);
+                        await Context.Channel.SendMessageAsync(msgConfig.VerifySuc.Replace("{0}", user.Mention));
+                    }
+                    else
+                    {
+                        await Context.Channel.SendMessageAsync(msgConfig.VerifyErr.Replace("{0}", user.Mention));
+                    }
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync(msgConfig.VerificationsOff);
+                }
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync(msgConfig.NoPermission.Replace("{0}", Context.User.Mention));
+            }
+        }
+
+        // UnVerify
+        [Command("unverify")]
+        [Summary("Unverifies the user on the server.")]
+        public async Task UnVerify([Remainder] SocketGuildUser user)
+        {
+            var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
+            if (config.Admins.Contains(Context.User.Id) || config.OwnerID == Context.User.Id)
+            {
+                if (config.Verifications == true)
+                {
+                    var role1 = Context.Guild.Roles.First(f => f.Name == "unverified");
+                    var role2 = Context.Guild.Roles.First(f => f.Name == "verified");
+                    var roles = user.Roles;
+                    if (roles.Contains(role2))
+                    {
+                        await user.RemoveRolesAsync(role2);
+                        await user.AddRolesAsync(role1);
+                        await Context.Channel.SendMessageAsync(msgConfig.UnverifySuc.Replace("{0}", user.Mention));
+                    }
+                    else
+                    {
+                        await Context.Channel.SendMessageAsync(msgConfig.UnverifyErr.Replace("{0}", user.Mention));
+                    }
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync(msgConfig.VerificationsDisabled);
+                }
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync(msgConfig.NoPermission.Replace("{0}", Context.User.Mention));
             }
         }
     }

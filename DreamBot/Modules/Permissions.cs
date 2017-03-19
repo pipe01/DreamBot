@@ -16,6 +16,7 @@ namespace DreamBot.Modules
     // Permissions
     public class Permissions : ModuleBase
     {
+        MessageConfig msgConfig = new Functions().GetMessageConfig();
         // Add Admin
         [Command("addadmin"), Summary("Adds the admin for the server.")]
         public async Task AddAdmin([Remainder] SocketUser user)
@@ -30,16 +31,16 @@ namespace DreamBot.Modules
                     adminList.Add(user.Id);
                     var jsonData = JsonConvert.SerializeObject(new ServerConfig { ServerName = config.ServerName, ServerID = config.ServerID, OwnerID = config.OwnerID, Admins = adminList.ToArray(), Verifications = config.Verifications });
                     File.WriteAllText($"configs/{Context.Guild.Id}.json", jsonData);
-                    await Context.Channel.SendMessageAsync($"{user.Mention} has been added to admins.");
+                    await Context.Channel.SendMessageAsync(msgConfig.AddAdminSuc.Replace("{0}", user.Mention));
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync($"{user.Mention} is already an admin.");
+                    await Context.Channel.SendMessageAsync(msgConfig.AddAdminErr.Replace("{0}", user.Mention));
                 }
             }
             else
             {
-                await Context.Channel.SendMessageAsync($"{Context.User.Mention}, you are not allowed to do that.");
+                await Context.Channel.SendMessageAsync(msgConfig.NoPermission.Replace("{0}", Context.User.Mention));
             }
         }
         // Remove Admin
@@ -56,16 +57,16 @@ namespace DreamBot.Modules
                     adminList.Remove(user.Id);
                     var jsonData = JsonConvert.SerializeObject(new ServerConfig { ServerName = config.ServerName, ServerID = config.ServerID, OwnerID = config.OwnerID, Admins = adminList.ToArray(), Verifications = config.Verifications });
                     File.WriteAllText($"configs/{Context.Guild.Id}.json", jsonData);
-                    await Context.Channel.SendMessageAsync($"{user.Mention} has been removed from admins.");
+                    await Context.Channel.SendMessageAsync(msgConfig.RemAdminSuc.Replace("{0}", user.Mention));
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync($"{user.Mention} is not admin.");
+                    await Context.Channel.SendMessageAsync(msgConfig.RemAdminErr.Replace("{0}", user.Mention));
                 }
             }
             else
             {
-                await Context.Channel.SendMessageAsync($"{Context.User.Mention}, you are not allowed to do that.");
+                await Context.Channel.SendMessageAsync(msgConfig.NoPermission.Replace("{0}", Context.User.Mention));
             }
         }
     }

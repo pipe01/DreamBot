@@ -32,14 +32,14 @@ namespace DreamBot.Modules
                     var jsonData = JsonConvert.SerializeObject(new ServerConfig { ServerName = config.ServerName, ServerID = config.ServerID, OwnerID = config.OwnerID, Admins = config.Admins, Verifications = true });
                     File.WriteAllText($"configs/{Context.Guild.Id}.json", jsonData);
                     new Functions().EnableVerifications((SocketGuild)Context.Guild);
-                    await Context.Channel.SendMessageAsync("Verifications have been enabled. Please go setup verified roles permissions if you haven't done that already.");
+                    await Context.Channel.SendMessageAsync(msgConfig.VerificationsEnabled);
                 }
                 else
                 {
                     var jsonData = JsonConvert.SerializeObject(new ServerConfig { ServerName = config.ServerName, ServerID = config.ServerID, OwnerID = config.OwnerID, Admins = config.Admins, Verifications = false });
                     File.WriteAllText($"configs/{Context.Guild.Id}.json", jsonData);
                     new Functions().DisableVerifications((SocketGuild)Context.Guild);
-                    await Context.Channel.SendMessageAsync("Verifications have been disable.");
+                    await Context.Channel.SendMessageAsync(msgConfig.VerificationsDisabled);
                 }
             }
             else
