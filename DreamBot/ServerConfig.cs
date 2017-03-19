@@ -12,7 +12,6 @@ namespace DreamBot
         public string ServerName { get; set; }
         public ulong ServerID { get; set; }
         public ulong OwnerID { get; set; }
-        public ulong[] Admins { get; set; }
         public bool Verifications { get; set; }
     }
 }

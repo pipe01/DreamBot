@@ -40,15 +40,15 @@ namespace DreamBot
             {
                 var content = File.ReadAllText(filePath);
                 var config = JsonConvert.DeserializeObject<ServerConfig>(content);
-                if (config.ServerName == "" || config.ServerID == 0 || config.OwnerID == 0 || config.Admins == null || config.Verifications != false && config.Verifications != true)
+                if (config.ServerName == "" || config.ServerID == 0 || config.OwnerID == 0 ||  config.Verifications != false && config.Verifications != true)
                 {
-                    var jsonString = JsonConvert.SerializeObject(new ServerConfig { ServerName = server.Name, ServerID = server.Id, OwnerID = server.Owner.Id, Admins = Array.Empty<ulong>(), Verifications = false });
+                    var jsonString = JsonConvert.SerializeObject(new ServerConfig { ServerName = server.Name, ServerID = server.Id, OwnerID = server.Owner.Id, Verifications = false });
                     File.WriteAllText(filePath, jsonString);
                 }
             }
             else
             {
-                var jsonString = JsonConvert.SerializeObject(new ServerConfig { ServerName = server.Name, ServerID = server.Id, OwnerID = server.Owner.Id, Admins = Array.Empty<ulong>(), Verifications = false });
+                var jsonString = JsonConvert.SerializeObject(new ServerConfig { ServerName = server.Name, ServerID = server.Id, OwnerID = server.Owner.Id, Verifications = false });
                 File.WriteAllText(filePath, jsonString);
             }
         }
@@ -64,7 +64,7 @@ namespace DreamBot
             }
             else
             {
-                unverified = server.Roles.First(f => f.Name.Equals("unverified"));
+                unverified = server.Roles.FirstOrDefault(f => f.Name.Equals("unverified"));
             }
 
             if (!server.Roles.Any(a => a.Name == "verified"))
@@ -73,7 +73,7 @@ namespace DreamBot
             }
             else
             {
-                verified = server.Roles.First(f => f.Name.Equals("verified"));
+                verified = server.Roles.FirstOrDefault(f => f.Name.Equals("verified"));
             }
 
             foreach (SocketGuildChannel channel in server.Channels)
@@ -90,7 +90,7 @@ namespace DreamBot
                 var roles = user.Roles.ToList();
                 if (roles.Count() == 0)
                 {
-                    await user.AddRolesAsync(server.Roles.First(f => f.Name == "unverified"));
+                    await user.AddRolesAsync(server.Roles.FirstOrDefault(f => f.Name == "unverified"));
                 }
             }
         }
@@ -99,8 +99,8 @@ namespace DreamBot
         {
             foreach (SocketGuildUser user in server.Users)
             {
-                var role1 = server.Roles.First(f => f.Name == "unverified");
-                var role2 = server.Roles.First(f => f.Name == "verified");
+                var role1 = server.Roles.FirstOrDefault(f => f.Name == "unverified");
+                var role2 = server.Roles.FirstOrDefault(f => f.Name == "verified");
                 var roles = user.Roles.ToList();
 
                 if (roles.Contains(role1))
@@ -111,6 +111,25 @@ namespace DreamBot
                 {
                     await user.RemoveRolesAsync(role2);
                 }
+            }
+        }
+
+        public async void CheckEvents(SocketGuild server)
+        {
+            IChannel channel;
+            if (!server.TextChannels.Any(a => a.Name == "events"))
+            {
+                channel = await server.CreateTextChannelAsync("events");
+            }
+            else
+            {
+                channel = server.TextChannels.FirstOrDefault(f => f.Name == "events");
+            }
+            var perms = new OverwritePermissions(sendMessages: PermValue.Deny, attachFiles: PermValue.Deny);
+
+            if (!((SocketTextChannel)channel).GetPermissionOverwrite(server.EveryoneRole).Equals(perms))
+            {
+                await ((SocketTextChannel)channel).AddPermissionOverwriteAsync(server.EveryoneRole, perms);
             }
         }
     }

@@ -161,12 +161,12 @@
     <Compile Include="BotConfig.cs" />
     <Compile Include="CommandHandler.cs" />
     <Compile Include="DreamBot.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="MessageConfig.cs" />
     <Compile Include="Modules\Admin.cs" />
     <Compile Include="Modules\Info.cs" />
     <Compile Include="Modules\Manage.cs" />
-    <Compile Include="Modules\Permissions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerConfig.cs" />

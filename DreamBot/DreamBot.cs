@@ -47,7 +47,10 @@ namespace DreamBot
 
             // Define _client.Log
             _client.Log += Log;
-            
+
+            // Events
+            /*await new Events(_client).CreateEvents();*/
+
             // Login & Connect
             await _client.LoginAsync(TokenType.Bot, config.BotToken);
 
@@ -84,6 +87,7 @@ namespace DreamBot
                 {
                     new Functions().EnableVerifications(server);
                 }
+                new Functions().CheckEvents(server);
             }
         }
     }
