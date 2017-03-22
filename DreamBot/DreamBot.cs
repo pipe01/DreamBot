@@ -31,7 +31,7 @@ namespace DreamBot
         public async Task Start()
         {
             // Get BotConfig
-            var config = new Functions().GetBotConfig();
+            var config = Functions.GetBotConfig();
 
             // Console
             Console.Title = "DreamBot";
@@ -81,13 +81,13 @@ namespace DreamBot
             foreach(SocketGuild server in _client.Guilds)
             {
                 Console.WriteLine($"[{LogSeverity.Info}] [Guild] [{server.Name}]");
-                new Functions().CheckFile(server);
-                ServerConfig config = new Functions().GetServerConfig(server);
+                Functions.CheckFile(server);
+                ServerConfig config = Functions.GetServerConfig(server);
                 if (config.Verifications == true)
                 {
-                    new Functions().EnableVerifications(server);
+                    Functions.EnableVerifications(server);
                 }
-                new Functions().CheckEvents(server);
+                Functions.CheckEvents(server);
             }
         }
     }
