@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace DreamBot
 {
-    class ServerConfig
+    public class ServerConfig
     {
         public string ServerName { get; set; }
         public ulong ServerID { get; set; }

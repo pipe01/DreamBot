@@ -14,7 +14,7 @@ using Discord.Commands;
 
 namespace DreamBot
 {
-    class DreamBot
+    public class DreamBot
     {
         // Create _client
         private DiscordSocketClient _client;

@@ -7,6 +7,8 @@ using System.IO;
 
 using Newtonsoft.Json;
 
+using static DreamBot.Functions;
+
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
@@ -16,16 +18,38 @@ namespace DreamBot.Modules
     // Admin
     public class Admin : ModuleBase
     {
-        MessageConfig msgConfig = new Functions().GetMessageConfig();
+        MessageConfig msgConfig = GetMessageConfig();
         // Kick
         [Command("kick")]
         [Summary("Kicks the user.")]
         [RequireUserPermission(GuildPermission.KickMembers)]
         [RequireBotPermission(GuildPermission.KickMembers)]
-        public async Task Kick([Remainder] SocketGuildUser user)
+        public async Task Kick(SocketGuildUser user = null)
         {
-            await user.KickAsync();
-            await Context.Channel.SendMessageAsync(msgConfig.KickMsg.Replace("{0}", user.Mention));
+            if (user != null)
+            {
+                var users = await Context.Guild.GetUsersAsync();
+                if (users.Contains(user))
+                {
+                    if (user != Context.User)
+                    {
+                        await user.KickAsync();
+                        await Context.Channel.SendMessageAsync(MSGReplace(msgConfig.KickMsg, Context, user));
+                    }
+                    else
+                    {
+                        await Context.Channel.SendMessageAsync(MSGReplace(msgConfig.ErrSelf, Context, user));
+                    }
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync(MSGReplace(msgConfig.KickErrNoUser, Context, user));
+                }
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync(MSGReplace(msgConfig.KickErrArgs, Context, user));
+            }
         }
 
         // Ban
@@ -35,8 +59,15 @@ namespace DreamBot.Modules
         [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task Ban([Remainder] SocketGuildUser user)
         {
-            await Context.Guild.AddBanAsync(user, 0);
-            await Context.Channel.SendMessageAsync(msgConfig.BanMsg.Replace("{0}", user.Mention));
+            if (user != Context.User)
+            {
+                await Context.Guild.AddBanAsync(user, 0);
+                await Context.Channel.SendMessageAsync(msgConfig.BanMsg.Replace("{0}", user.Mention));
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync(msgConfig.ErrSelf.Replace("{0}", Context.User.Mention));
+            }
         }
 
         // Prune
@@ -58,6 +89,25 @@ namespace DreamBot.Modules
             }
         }
 
+        // Prune
+        [Command("uprune")]
+        [Summary("Removes messages by user.")]
+        [RequireUserPermission(GuildPermission.ManageMessages)]
+        [RequireBotPermission(GuildPermission.ManageMessages)]
+        public async Task UPrune(SocketUser user, [Remainder] int amount)
+        {
+            amount = amount + 1;
+            if (amount <= 101)
+            {
+                var messages = await Context.Channel.GetMessagesAsync(amount).Flatten();
+                await Context.Channel.DeleteMessagesAsync(messages);
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync(msgConfig.UPruneErr);
+            }
+        }
+
         // Verify
         [Command("verify")]
         [Summary("Verifies the user on the server.")]
@@ -65,7 +115,7 @@ namespace DreamBot.Modules
         [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task Verify([Remainder] SocketGuildUser user)
         {
-            var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
+            var config = GetServerConfig((SocketGuild)Context.Guild);
             if (config.Verifications == true)
             {
                 var role1 = Context.Guild.Roles.First(f => f.Name == "unverified");
@@ -95,7 +145,7 @@ namespace DreamBot.Modules
         [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task UnVerify([Remainder] SocketGuildUser user)
         {
-            var config = new Functions().GetServerConfig((SocketGuild)Context.Guild);
+            var config = GetServerConfig((SocketGuild)Context.Guild);
             if (config.Verifications == true)
             {
                 var role1 = Context.Guild.Roles.First(f => f.Name == "unverified");

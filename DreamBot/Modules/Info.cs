@@ -9,6 +9,8 @@ using System.IO;
 
 using Newtonsoft.Json;
 
+using static DreamBot.Functions;
+
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -17,7 +19,7 @@ namespace DreamBot.Modules
 {
     public class Info : ModuleBase
     {
-        MessageConfig msgConfig = new Functions().GetMessageConfig();
+        MessageConfig msgConfig = GetMessageConfig();
         // Invite
         [Command("invite")]
         [Summary("Invite the bot to your server.")]
@@ -32,7 +34,7 @@ namespace DreamBot.Modules
         [Summary("Gets the id of specified user.")]
         public async Task Id([Remainder] SocketUser user)
         {
-            await Context.Channel.SendMessageAsync($"{user.Mention}'s id is {user.Id}");
+            await Context.Channel.SendMessageAsync(MSGReplace(msgConfig.IdMsg, Context, user));
         }
 
         // Stats

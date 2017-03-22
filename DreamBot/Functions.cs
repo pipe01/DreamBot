@@ -11,29 +11,29 @@ using Discord.Commands;
 
 namespace DreamBot
 {
-    class Functions
+    public class Functions
     {
-        public MessageConfig GetMessageConfig()
+        public static MessageConfig GetMessageConfig()
         {
             string filePath = "configs/messages.json";
             var jsonString = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<MessageConfig>(jsonString);
         }
-        public BotConfig GetBotConfig()
+        public static BotConfig GetBotConfig()
         {
             string filePath = "configs/bot.json";
             var jsonString = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<BotConfig>(jsonString);
         }
 
-        public ServerConfig GetServerConfig(SocketGuild server)
+        public static ServerConfig GetServerConfig(SocketGuild server)
         {
             string filePath = $"configs/{server.Id}.json";
             var jsonString = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<ServerConfig>(jsonString);
         }
 
-        public void CheckFile(SocketGuild server)
+        public static void CheckFile(SocketGuild server)
         {
             var filePath = $"configs/{server.Id}.json";
             if (File.Exists(filePath))
@@ -53,7 +53,7 @@ namespace DreamBot
             }
         }
 
-        public async void EnableVerifications(SocketGuild server)
+        public static async void EnableVerifications(SocketGuild server)
         {
             IRole unverified;
             IRole verified;
@@ -95,7 +95,7 @@ namespace DreamBot
             }
         }
 
-        public async void DisableVerifications(SocketGuild server)
+        public static async void DisableVerifications(SocketGuild server)
         {
             foreach (SocketGuildUser user in server.Users)
             {
@@ -114,7 +114,7 @@ namespace DreamBot
             }
         }
 
-        public async void CheckEvents(SocketGuild server)
+        public static async void CheckEvents(SocketGuild server)
         {
             IChannel channel;
             if (!server.TextChannels.Any(a => a.Name == "events"))
@@ -131,6 +131,32 @@ namespace DreamBot
             {
                 await ((SocketTextChannel)channel).AddPermissionOverwriteAsync(server.EveryoneRole, perms);
             }
+        }
+
+        public static string MSGReplace(string _msg, CommandContext _context, SocketUser _user = null, int _amount = 0)
+        {
+            var callerVar = "%caller%";
+            var targetVar = "%target%";
+            var amountVar = "%amount%";
+            var uidVar = "%uid%";
+            var bidVar = "%bid%";
+
+            var caller = _context.User as SocketGuildUser;
+            SocketUser target = null;
+            var app = _context.Client.GetApplicationInfoAsync();
+
+            if (_user != null)
+            {
+                target = _user;
+            }
+
+            _msg = _msg.Replace(callerVar, caller.Nickname);
+            _msg = _msg.Replace(targetVar, target.Username);
+            _msg = _msg.Replace(amountVar, _amount.ToString());
+            _msg = _msg.Replace(uidVar, target.Id.ToString());
+            _msg = _msg.Replace(bidVar, app.Id.ToString());
+
+            return _msg;
         }
     }
 }
